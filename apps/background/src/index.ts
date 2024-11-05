@@ -1,9 +1,6 @@
-// import { createRequire } from 'module';
 import express, {Request, Response, NextFunction} from 'express';
 import { ElevenLabs } from './elevenlabs';
-import path from 'path';
-// const bquire = createRequire(path.resolve());
-// const { ElevenLabs } = bquire('elevenlabs');
+import { Buffer } from 'buffer';
 const app = express();
 app.use(express.json());
 
@@ -17,6 +14,23 @@ router.get('/', (req: Request, res: Response, next: NextFunction) => {
 router.get('/voices', async (req: Request, res: Response) => {  
     const list = await elabs.getVoices();
     res.json(list);
+});
+
+router.post('/generate', async (req: Request, res: Response) => {
+    const text = req.body.text;
+    const voiceId = req.body.voiceId;
+
+    try {
+        const data = await elabs.tts(text, voiceId);
+        console.time('encoding');
+        const b64 = Buffer.from(data, 'binary').toString('base64');
+        console.timeEnd('encoding');
+        res.json({
+            data: b64,
+        });
+    } catch(err) {
+        console.log('error!!!!', err);
+    }
 });
 
 app.use('/', router);

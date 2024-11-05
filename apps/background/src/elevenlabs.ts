@@ -1,4 +1,4 @@
-import axios, { AxiosRequestConfig } from 'axios';
+import axios, { AxiosError, AxiosRequestConfig } from 'axios';
 
 export class ElevenLabs {
 
@@ -11,14 +11,38 @@ export class ElevenLabs {
     });
 
     async request(data: AxiosRequestConfig) {
-        const res = await this.instance(data);
-        return res.data;
+        try {
+            const res = await this.instance.request(data);
+            return res.data;
+        } catch(err) {
+            if ( err instanceof AxiosError ) {
+                console.log('axios error', err.code, err.response?.data);
+            }
+        }
     }
 
     getVoices() {
         return this.request({
             url: '/v1/voices',
             method: 'GET',
+        });
+    }
+
+    tts(text: string, voiceId: string) {
+        return this.request({
+            url: `/v1/text-to-speech/${voiceId}`,
+            method: 'POST',
+            responseType: 'arraybuffer',
+            data: {
+                "text": text,
+                "model_id": "eleven_turbo_v2_5",
+                "voice_settings": {
+                    "stability": 0.9,
+                    "similarity_boost": 0.9,
+                    "style": 0.5,
+                    "use_speaker_boost": true
+                }
+            }
         });
     }
 
