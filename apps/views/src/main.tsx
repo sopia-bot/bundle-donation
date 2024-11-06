@@ -6,8 +6,18 @@ import {
   QueryClient,
   QueryClientProvider,
 } from '@tanstack/react-query';
+import {
+  createBrowserRouter,
+  HashRouter,
+  Route,
+  Routes,
+} from "react-router-dom";
 import theme from './theme';
-import App from './App';
+import Home from './pages/Home';
+import Signature from './pages/Signature';
+import EffectSound from './pages/EffectSound';
+import Settings from './pages/Settings';
+import ProminentAppBar from './AppBar';
 
 const queryClient = new QueryClient();
 
@@ -16,7 +26,16 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <QueryClientProvider client={queryClient}>
-        <App />
+
+        <HashRouter>
+          <ProminentAppBar></ProminentAppBar>
+          <Routes>
+            <Route path="/" element={<Home />}></Route>
+            <Route path="/signature" element={<Signature />}></Route>
+            <Route path="/effect" element={<EffectSound />}></Route>
+            <Route path="/settings" element={<Settings />}></Route>
+          </Routes>
+        </HashRouter>
       </QueryClientProvider>
     </ThemeProvider>
   </React.StrictMode>,

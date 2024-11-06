@@ -18,12 +18,14 @@ export default function App() {
   console.log('data', data);
 
   return (
-    <Container maxWidth="sm">
-      <Box sx={{ my: 4 }}>
-        <Typography variant="h4" component="h1" sx={{ mb: 2 }}>
-            This is sopia project.
-        </Typography>
-      </Box>
-    </Container>
+    <>
+      <Container maxWidth="sm">
+        <Box sx={{ my: 4 }}>
+          <Typography variant="h4" component="h1" sx={{ mb: 2 }}>
+              This is sopia project.
+          </Typography>
+        </Box>
+      </Container>
+    </>
   );
 }
