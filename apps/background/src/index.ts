@@ -1,6 +1,7 @@
 import express, {Request, Response, NextFunction} from 'express';
 import { ElevenLabs } from './elevenlabs';
-import { Buffer } from 'buffer';
+import { runInitMigration } from './db';
+import path from 'node:path';
 const app = express();
 app.use(express.json());
 
@@ -35,4 +36,10 @@ router.post('/generate', async (req: Request, res: Response) => {
 
 app.use('/', router);
 
-module.exports = app;
+declare global {
+    const __pkgdir: string;
+}
+runInitMigration(path.join(__pkgdir, 'config.db'), path.join(__pkgdir, 'migrations'));
+
+// module.exports = app;
+export default app;

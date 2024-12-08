@@ -1,4 +1,5 @@
 import axios, { AxiosError, AxiosRequestConfig } from 'axios';
+console.log('mp2', module.paths);
 
 export class ElevenLabs {
 

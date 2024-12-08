@@ -38,6 +38,10 @@ testem.log
 .DS_Store
 Thumbs.db
 
+# prisma
+/prisma/dev.*
+/prisma/dbsrc
+
 .nx/cache
 .nx/workspace-data
 
