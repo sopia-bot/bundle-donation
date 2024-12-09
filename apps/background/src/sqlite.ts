@@ -6,4 +6,9 @@ export class SqliteHelper extends SQLite3 {
         const stmt = this.prepare(sql);
         return stmt.run(arg);
     }
+
+    select(sql: string, arg: any): any {
+        const stmt = this.prepare(sql);
+        return stmt.get(arg);
+    }
 }

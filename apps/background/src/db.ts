@@ -28,10 +28,17 @@ export async function runInitMigration(dbFile: string, migDir: string) {
         const migSql = await fs.readFile(migFile, 'utf8');
         logger.info(`[migration] try migration=${migSql}`);
         try {
+            const sqlName = path.basename(migSql);
+
+            const res = db.select(`SELECT COUNT(1) AS cnt FROM _prisma_migrations WHERE migration_name = @name AND finished_at IS NOT NULL`, { name: sqlName });
+            if ( res?.cnt > 0 ) {
+                logger.error(`[migration] exists migration result migration=${migFile}`);
+                continue;
+            }
             const id = randomUUID();
             db.query(`INSERT INTO _prisma_migrations(id, migration_name) VALUES(@id, @name)`, {
                 id,
-                name: path.basename(migSql),
+                name: sqlName,
             });
             db.exec(migSql);
             db.query(`UPDATE _prisma_migrations SET finished_at = CURRENT_TIMESTAMP WHERE id=@id`, { id });
