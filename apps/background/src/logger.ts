@@ -1,7 +1,7 @@
 import path from "path";
 
-const winston = require('winston');
-require('winston-daily-rotate-file');
+import winston from 'winston';
+import 'winston-daily-rotate-file';
 
 var transport = new winston.transports.DailyRotateFile({
   level: 'info',

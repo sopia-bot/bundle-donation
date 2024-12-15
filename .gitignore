@@ -4,6 +4,7 @@
 dist
 tmp
 /out-tsc
+apps/background/src/prisma
 
 # dependencies
 node_modules

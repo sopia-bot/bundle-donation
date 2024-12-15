@@ -17,7 +17,7 @@ import Home from './pages/Home';
 import Signature from './pages/Signature';
 import EffectSound from './pages/EffectSound';
 import Settings from './pages/Settings';
-import ProminentAppBar from './AppBar';
+import ProminentAppBar from './components/AppBar';
 
 const queryClient = new QueryClient();
 
