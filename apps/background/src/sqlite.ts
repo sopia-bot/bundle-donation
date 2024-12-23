@@ -11,4 +11,16 @@ export class SqliteHelper extends SQLite3 {
         const stmt = this.prepare(sql);
         return stmt.get(arg);
     }
+
+    runInTransaction(callback: () => void) {
+        try {
+            this.exec("BEGIN TRANSACTION");
+            callback();
+            this.exec("COMMIT");
+            return true;
+        } catch (error) {
+            this.exec("ROLLBACK");
+            return false;
+        }
+    }
 }

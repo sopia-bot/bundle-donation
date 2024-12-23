@@ -19,14 +19,15 @@ model Template {
   useType Int // 1: use sticker, 2: use threshold
   sticker String?
   threshold Int?
-  volume Int @default(70)
+  volumn Int
   voices TemplateVoice[]
 }
 
 model TemplateVoice {
   id    Int     @id @default(autoincrement())
+  uuid String @unique
   name String
   voiceId String
-  template Template  @relation(fields: [templateId], references: [uuid])
-  templateId String
+  template Template  @relation(fields: [templateId], references: [id])
+  templateId Int
 }

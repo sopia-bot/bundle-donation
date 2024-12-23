@@ -4,6 +4,18 @@ import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import { useQuery } from '@tanstack/react-query';
 
+/*
+1. 프리셋추가
+
+
+-프리셋
+1. 트리거 단어
+2. 녹음하기
+3. 녹음편집
+4. 프리셋 삭제
+5. 목소리 볼륨
+*/
+
 export default function App() {
   const { isPending, error, data } = useQuery({
     queryKey: ['getVoice'],

@@ -4,6 +4,15 @@ import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import { useQuery } from '@tanstack/react-query';
 
+/*
+효과음 추가
+
+1. 효과음 선택
+2. 효과음 볼륨
+3. 효과음 스푼
+4. 효과음 삭제
+5. 효과음 편집ㄽㄹ
+*/
 export default function App() {
   const { isPending, error, data } = useQuery({
     queryKey: ['getVoice'],

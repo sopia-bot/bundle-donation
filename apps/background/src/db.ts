@@ -40,8 +40,12 @@ export async function runInitMigration(dbFile: string, migDir: string) {
                 id,
                 name: sqlName,
             });
-            db.exec(migSql);
-            db.query(`UPDATE _prisma_migrations SET finished_at = CURRENT_TIMESTAMP WHERE id=@id`, { id });
+            const success = db.runInTransaction(() => {
+                db.exec(migSql);
+            });
+            if ( success ) {
+                db.query(`UPDATE _prisma_migrations SET finished_at = CURRENT_TIMESTAMP WHERE id=@id`, { id });
+            }
             logger.debug(`[migration] success migration=${migFile}`);
         } catch(err) {
             console.error(err);

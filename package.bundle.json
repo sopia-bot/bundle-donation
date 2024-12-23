@@ -3,7 +3,7 @@
   "name:ko": "도네이션",
   "description": "Read tts to donation",
 	"description:ko": "다 아는 전자녀 그 기능.",
-  "version": "0.0.2",
+  "version": "0.0.6",
   "main": "./apps/worker/src/index.js",
   "page": "http://localhost:4200",
   "pageType": "http",

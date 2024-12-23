@@ -57,7 +57,7 @@ export default function ProminentAppBar() {
   }
   return (
     <Box sx={{ flexGrow: 1, backgroundColor: purple[500] }}>
-      <AppBar position="static">
+      <AppBar position="static" elevation={0}>
         <StyledToolbar variant='dense'>
           <Typography
             variant="h5"

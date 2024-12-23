@@ -4,6 +4,10 @@ import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import { useQuery } from '@tanstack/react-query';
 
+/*
+1. 채팅 입력 대기 시간
+*/
+
 export default function App() {
   const { isPending, error, data } = useQuery({
     queryKey: ['getVoice'],

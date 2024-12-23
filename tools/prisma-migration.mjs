@@ -51,6 +51,8 @@ export function createMigrationScript() {
             }
         }
         const schemaPath = path.join(prismaPath, 'schema.prisma');
+        console.log('INFO: ', emptyFlag ? 'empty' : fromSchema);
+        console.log('INFO: ', schemaPath);
 
         const ps = spawn(prismaCmd, [
             'migrate',
@@ -59,12 +61,15 @@ export function createMigrationScript() {
             '--to-schema-datamodel',
             schemaPath,
             '--script',
-        ]);
+        ], {
+            shell: true,
+        });
 
         const migPath = path.join(migrationsPath, `${dateSurffix(new Date())}_version_${pkg.version}.sql`);
         const stream = fs.createWriteStream(migPath);
 
         ps.stdout.pipe(stream);
+        ps.stderr.pipe(process.stderr);
 
         ps.on('close', () => {
             //organize();
