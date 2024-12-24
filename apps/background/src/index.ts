@@ -191,7 +191,10 @@ app.use('/', router);
 declare global {
     const __pkgdir: string;
 }
-runInitMigration(path.join(__pkgdir, 'config.db'), path.join(__pkgdir, 'migrations'));
+runInitMigration(path.join(__pkgdir, 'config.db'), path.join(__pkgdir, 'migrations'))
+.catch((err) => {
+    logger.error(`[migration] runInitMigration error ::`, err);
+});
 console.log('Donation app loaded!');
 
 // module.exports = app;
