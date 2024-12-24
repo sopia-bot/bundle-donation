@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Template, Voice } from "../types/template";
 import { StickerDialogBtn } from "./StickerDialog";
 import { FormControl, Grid2 as Grid, Input, InputAdornment, InputLabel, MenuItem, OutlinedInput, Select, SelectChangeEvent, Slider, TextField, Typography } from "@mui/material";
@@ -35,6 +35,7 @@ export default function(props: TemplateSettingProp) {
         queryFn: () => fetch('stp://donation.sopia.dev/voices').then((res) => res.json()),
     });
     const [voices, setVoices] = useState<Voice[]>([]);
+    const divRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         const newData = data.voices.map((voice: Voice) => {
@@ -46,6 +47,12 @@ export default function(props: TemplateSettingProp) {
         });
         setVoices(newData);
         setTemplate(props.template);
+        if ( divRef.current ) {
+            divRef.current.scrollTo({
+                top: 0,
+                behavior: 'smooth',
+            });
+        }
     }, [props.template]);
 
     if ( isPending ) return 'Lodaing...';
@@ -79,7 +86,7 @@ export default function(props: TemplateSettingProp) {
         setTemplate(template);
     }
 
-    return <>
+    return <div ref={divRef} style={{ maxHeight: 'calc(100vh - 113px)', overflowY: 'auto' }}>
         <Grid container spacing={2} style={{ marginTop: '1rem' }} alignItems={'center'}>
             <Grid size={{ xs: 6 }}>
                 <Typography variant='h6' fontWeight={'bold'}>템플릿 이름</Typography>
@@ -203,5 +210,5 @@ export default function(props: TemplateSettingProp) {
             {
                 voices.map((voice: any) => <VoiceItem key={voice.voice_id} voice={voice} onChange={voiceToggle}></VoiceItem>)
             }
-    </>;
+    </div>;
 }
