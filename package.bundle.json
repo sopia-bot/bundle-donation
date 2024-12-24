@@ -4,7 +4,7 @@
   "description": "Read tts to donation",
 	"description:ko": "다 아는 전자녀 그 기능.",
   "version": "0.0.6",
-  "main": "./apps/worker/src/index.js",
+  "main": "./apps/worker/index.js",
   "page": "http://localhost:4200",
   "pageType": "http",
   "pageRoot": "apps/views",
