@@ -22,7 +22,7 @@ export default function FilePicker({
     // eslint-disable-next-line jsx-a11y/label-has-associated-control
     <label className={clsx('file', className)}>
       { children }
-      <input type="file" key={inputKey} onChange={handleChange} />
+      <input type="file" accept='audio/*' key={inputKey} onChange={handleChange} />
     </label>
   );
 }

@@ -19,7 +19,13 @@ import EffectSound from './pages/EffectSound';
 import Settings from './pages/Settings';
 import ProminentAppBar from './components/AppBar';
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

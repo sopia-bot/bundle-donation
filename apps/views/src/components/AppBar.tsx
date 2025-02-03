@@ -93,7 +93,7 @@ export default function ProminentAppBar() {
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
           <StyledTabs value={value} onChange={handleChange}>
             <Tab label={<TabLabel><LayersIcon/>템플릿</TabLabel>} value={1} />
-            <Tab label={<TabLabel><PersonIcon/>시그니처</TabLabel>} value={2} />
+            {/* <Tab label={<TabLabel><PersonIcon/>시그니처</TabLabel>} value={2} /> */}
             <Tab label={<TabLabel><AudiotrackIcon/>효과음</TabLabel>} value={3} />
             <Tab label={<TabLabel><SettingsIcon/>설정</TabLabel>} value={4} />
           </StyledTabs>

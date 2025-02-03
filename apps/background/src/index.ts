@@ -5,7 +5,17 @@ import path from 'node:path';
 import logger from './logger';
 import { PrismaClient } from './prisma';
 import crypto from 'node:crypto';
+import effectRouter from './effect';
+import { readFileSync } from 'node:fs';
+// import cors from 'cors';
 const app = express();
+
+app.use('*', (req: Request, res: Response, next: NextFunction) => {
+    console.log('req', req.url);
+    next();
+});
+
+// app.use(cors());
 app.use(express.json());
 app.set('etag', false);
 const dbPath = path.resolve(__dirname, '../../config.db');
@@ -187,6 +197,12 @@ router.delete('/template', async (req: Request, res: Response) => {
 });
 
 app.use('/', router);
+app.use('/', effectRouter);
+
+const pkgFile = path.join(__pkgdir, 'package.json');
+const pkg = JSON.parse(readFileSync(pkgFile, 'utf-8'));
+console.log(`Donation app loaded! version=${pkg.version}`);
+logger.log('info', `Donation app loaded! version=${pkg.version}`);
 
 declare global {
     const __pkgdir: string;
@@ -195,7 +211,7 @@ runInitMigration(path.join(__pkgdir, 'config.db'), path.join(__pkgdir, 'migratio
 .catch((err) => {
     logger.error(`[migration] runInitMigration error ::`, err);
 });
-console.log('Donation app loaded!');
+
 
 // module.exports = app;
 export default app;

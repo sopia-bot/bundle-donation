@@ -76,14 +76,14 @@ export default function(props: TemplateSettingProp) {
             }
             return voice;
         })
-        const template = structuredClone(props.template);
-        template.voices = newVoices
+        const settingVoices = newVoices
             .filter((voice: Voice) => voice.checked)
             .map((voice: Voice) => ({
                 name: voice.name || '',
                 voiceId: voice.voice_id
             }));
-        setTemplate(template);
+        templateChange('voices', settingVoices);
+        setVoices(newVoices);
     }
 
     return <div ref={divRef} style={{ maxHeight: 'calc(100vh - 113px)', overflowY: 'auto' }}>
@@ -139,7 +139,7 @@ export default function(props: TemplateSettingProp) {
                     </Grid>
                     <Grid size={{ xs: 6 }} alignContent={'end'} textAlign={'right'}>
                         <RightDiv>
-                            <StickerDialogBtn onChange={(v: Sticker) => templateChange('sticker', v.name)}></StickerDialogBtn>
+                            <StickerDialogBtn sticker={template.sticker} onChange={(v: Sticker) => templateChange('sticker', v.name)}></StickerDialogBtn>
                         </RightDiv>
                     </Grid>
                 </Grid>

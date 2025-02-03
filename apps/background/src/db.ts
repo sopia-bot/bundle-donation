@@ -28,7 +28,7 @@ export async function runInitMigration(dbFile: string, migDir: string) {
         const migSql = await fs.readFile(migFile, 'utf8');
         logger.info(`[migration] try migration=${migSql}`);
         try {
-            const sqlName = path.basename(migSql);
+            const sqlName = path.basename(migFile);
 
             const res = db.select(`SELECT COUNT(1) AS cnt FROM _prisma_migrations WHERE migration_name = @name AND finished_at IS NOT NULL`, { name: sqlName });
             if ( res?.cnt > 0 ) {

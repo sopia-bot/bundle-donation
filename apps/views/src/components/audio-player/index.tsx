@@ -1,15 +1,20 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
 import Player from './player';
 import FilePicker from './file';
-import {
-  isAudio, readBlobURL, download, rename,
-} from './utils';
-import { decodeAudioBuffer, sliceAudioBuffer } from './audio-helper';
+import { decodeAudioBuffer } from './audio-helper';
 import './style.css';
 import { useClassicState } from './hooks';
+import { FileOpen, Pause, PlayArrow, Save } from '@mui/icons-material';
+import { useCallback, useEffect } from 'react';
 
-export default function App() {
+export default function App({
+  audioName,
+  selectedAudioBlob,
+  onFileChange,
+}: {
+  audioName?: string,
+  selectedAudioBlob?: Blob,
+  onFileChange?: (file: File) => void,
+}) {
   const [state, setState] = useClassicState<{
     file: File | null;
     blobURL: string | null;
@@ -32,7 +37,14 @@ export default function App() {
     processing: false,
   });
 
-  const handleFileChange = async (file: File) => {
+  useEffect(() => {
+    console.log('callback?', Date.now());
+    if ( selectedAudioBlob && audioName && state.file === null ) {
+      handleFileChange(new File([selectedAudioBlob], audioName), true);
+    }
+  }, [selectedAudioBlob])
+
+  const handleFileChange = async (file: File, evtStop = false) => {
     setState({
       file,
       blobURL: URL.createObjectURL(file),
@@ -44,13 +56,17 @@ export default function App() {
     const audioBuffer = await decodeAudioBuffer(file);
 
     setState({
-      paused: false,
+      paused: true,
       decoding: false,
       audioBuffer,
       startTime: 0,
       currentTime: 0,
-      endTime: audioBuffer.duration / 2,
+      endTime: audioBuffer.duration,
     });
+
+    if ( !evtStop && onFileChange ) {
+      onFileChange(file);
+    }
   };
 
   const handleStartTimeChange = (time: number) => {
@@ -74,7 +90,7 @@ export default function App() {
   const handleEnd = () => {
     setState({
       currentTime: state.startTime,
-      paused: false,
+      paused: true,
     });
   };
 
@@ -84,14 +100,15 @@ export default function App() {
     });
   };
 
-  const handleReplayClick = () => {
-    setState({
-      currentTime: state.startTime,
-      paused: false,
-    });
-  };
+  const handleFileSave = () => {
+    if ( !state.file ) {
+      return;
+    }
 
-  const displaySeconds = (seconds: number) => `${seconds.toFixed(2)}s`;
+    if ( typeof onFileChange === 'function' ) {
+      onFileChange(state.file);
+    }
+  }
 
   return (
     <div className="container">
@@ -122,73 +139,40 @@ export default function App() {
 
             <div className="controllers">
               <FilePicker className="ctrl-item" onPick={handleFileChange}>
-                Music
+                <FileOpen/>
               </FilePicker>
 
               <button
                 type="button"
                 className="ctrl-item"
-                title="Play/Pause"
+                title={ state.paused ? '재생' : '일시정지' }
                 onClick={handlePlayPauseClick}
               >
-                {state.paused ? 'PlayIcon' : 'pauseIcon'}
+                {
+                  state.paused
+                  ? <PlayArrow/>
+                  : <Pause/>
+                }
               </button>
 
+              <div style={{ flex: 1 }}>
+              </div>
               <button
                 type="button"
                 className="ctrl-item"
-                title="Replay"
-                onClick={handleReplayClick}
+                title="저장"
+                style={{ margin: 0 }}
+                onClick={handleFileSave}
               >
-                Replay Icon
+                <Save/>
               </button>
-
-              {
-                Number.isFinite(state.endTime)
-                && (
-                <span className="seconds">
-                  Select
-                  {' '}
-                  <span className="seconds-range">
-                    {
-                    displaySeconds(state.endTime - state.startTime)
-                  }
-                  </span>
-                  {' '}
-                  of
-                  {' '}
-                  <span className="seconds-total">
-                    {
-                    displaySeconds(state.audioBuffer?.duration ?? 0)
-                  }
-                  </span>
-                  {' '}
-                  (from
-                  {' '}
-                  <span className="seconds-start">
-                    {
-                    displaySeconds(state.startTime)
-                  }
-                  </span>
-                  {' '}
-                  to
-                  {' '}
-                  <span className="seconds-end">
-                    {
-                    displaySeconds(state.endTime)
-                  }
-                  </span>
-                  )
-                </span>
-                )
-              }
             </div>
           </div>
         ) : (
           <div className="landing">
             <FilePicker onPick={handleFileChange}>
               <div className="file-main">
-                Select music file
+                효과음 파일을 선택해 주세요.
               </div>
             </FilePicker>
           </div>

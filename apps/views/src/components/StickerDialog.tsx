@@ -295,6 +295,9 @@ export function StickerDialogBtn(props: StickerDialogBtnProps) {
         if ( loading ) {
             if ( isInit ) {
                 setLoading(false);
+                if ( props.sticker ) {
+                    setSticker(findSticker(stickerList, props.sticker));
+                }
             } else {
                 fetch('https://static.spooncast.net/kr/stickers/index.json')
                     .then((res) => res.json())
@@ -308,6 +311,12 @@ export function StickerDialogBtn(props: StickerDialogBtnProps) {
             }
         }
     }, []);
+
+    useEffect(() => {
+        if ( props.sticker ) {
+            setSticker(findSticker(stickerList, props.sticker));
+        }
+    }, [props.sticker]);
     
 
     const handleOnClick = () => {
