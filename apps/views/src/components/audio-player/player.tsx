@@ -44,6 +44,7 @@ interface PlayerProps {
     onEndTimeChange(time: number): void;
     onCurrentTimeChange(time: number): void;
     onEnd(): void;
+    volume: number;
 }
 
 export default function Player({
@@ -58,6 +59,7 @@ export default function Player({
     onEndTimeChange,
     onCurrentTimeChange,
     onEnd,
+    volume,
 }: PlayerProps) {
     const [containerWidth, setContainerWidth] = useState(0);
     const [containerHeight, setContainerHeight] = useState(0);
@@ -131,6 +133,13 @@ export default function Player({
             audio.play();
         }
     }, [paused]);
+
+    useEffect(() => {
+        const audio = audioRef.current;
+        if (!audio?.src) return;
+        
+        audio.volume = volume * 0.01;
+    }, [volume])
     
     useEffect(() => {
         const audio = audioRef.current;

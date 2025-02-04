@@ -87,9 +87,7 @@ export default function App() {
 
   if ( error ) return 'An error has occurred: ' + error.message;
 
-  async function handleFileChange(sticker: string, file: File) {
-    console.log(file);
-
+  async function handleEffectChange(sticker: string, file: File, volume: number) {
     const fileName = file.name;
     let b64 = await blobToBase64(URL.createObjectURL(file));
     const mimeType = b64.split(';')[0].split(':')[1];
@@ -104,7 +102,7 @@ export default function App() {
         soundName: fileName,
         mimeType,
         base64: b64,
-        volume: 50,
+        volume: volume,
       }),
     }).then((res) => res.json())
   }
@@ -135,7 +133,9 @@ export default function App() {
                     <Player
                       audioName={defaultEffect?.soundName}
                       selectedAudioBlob={defaultEffect?.blob}
-                      onFileChange={(file) => handleFileChange('_sopia_def_sticker', file)}/>
+                      onChange={(file, volume) => handleEffectChange('_sopia_def_sticker', file, volume)}
+                      volume={defaultEffect?.volume}
+                    />
                   </div>
                 }
               </div>

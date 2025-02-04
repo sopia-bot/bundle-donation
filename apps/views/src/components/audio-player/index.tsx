@@ -3,17 +3,20 @@ import FilePicker from './file';
 import { decodeAudioBuffer } from './audio-helper';
 import './style.css';
 import { useClassicState } from './hooks';
-import { FileOpen, Pause, PlayArrow, Save } from '@mui/icons-material';
-import { useCallback, useEffect } from 'react';
+import { FileOpen, Pause, PlayArrow, Save, VolumeDown, VolumeMute, VolumeOff, VolumeUp } from '@mui/icons-material';
+import { useCallback, useEffect, useState } from 'react';
+import { Slider, Stack } from '@mui/material';
 
 export default function App({
   audioName,
   selectedAudioBlob,
-  onFileChange,
+  onChange,
+  volume,
 }: {
   audioName?: string,
   selectedAudioBlob?: Blob,
-  onFileChange?: (file: File) => void,
+  onChange?: (file: File, volume: number) => void,
+  volume?: number,
 }) {
   const [state, setState] = useClassicState<{
     file: File | null;
@@ -25,6 +28,7 @@ export default function App({
     endTime: number;
     currentTime: number;
     processing: boolean;
+    volume: number;
   }>({
     file: null,
     blobURL: null,
@@ -35,6 +39,7 @@ export default function App({
     endTime: Infinity,
     currentTime: 0,
     processing: false,
+    volume: volume || 0.5,
   });
 
   useEffect(() => {
@@ -64,8 +69,18 @@ export default function App({
       endTime: audioBuffer.duration,
     });
 
-    if ( !evtStop && onFileChange ) {
-      onFileChange(file);
+    if ( !evtStop && onChange ) {
+      onChange(file, state.volume);
+    }
+  };
+
+  const handleVolumeChange = (newValue: number, evtStop = false) => {
+    setState({
+      volume: newValue,
+    });
+
+    if ( !evtStop && typeof onChange === 'function' ) {
+      onChange(state.file!, newValue);
     }
   };
 
@@ -105,8 +120,8 @@ export default function App({
       return;
     }
 
-    if ( typeof onFileChange === 'function' ) {
-      onFileChange(state.file);
+    if ( typeof onChange === 'function' ) {
+      onChange(state.file, state.volume);
     }
   }
 
@@ -133,6 +148,7 @@ export default function App({
                   onEndTimeChange={handleEndTimeChange}
                   onCurrentTimeChange={handleCurrentTimeChange}
                   onEnd={handleEnd}
+                  volume={state.volume}
                 />
               )
             }
@@ -154,6 +170,13 @@ export default function App({
                   : <Pause/>
                 }
               </button>
+
+              <Stack spacing={2} direction="row" sx={{ alignItems: 'center', width: '250px' }}>
+                {state.volume === 0 ? <VolumeOff/> : <VolumeDown />}
+                <Slider min={0} max={100} value={state.volume} onChange={(e, newValue: number | number[]) => handleVolumeChange(newValue as number, true)} />
+                <VolumeUp />
+                <span>{state.volume}</span>
+              </Stack>
 
               <div style={{ flex: 1 }}>
               </div>
