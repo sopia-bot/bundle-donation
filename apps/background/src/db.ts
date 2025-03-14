@@ -26,7 +26,7 @@ export async function runInitMigration(dbFile: string, migDir: string) {
 
     for ( const migFile of migFiles ) {
         const migSql = await fs.readFile(migFile, 'utf8');
-        logger.info(`[migration] try migration=${migSql}`);
+        logger.info(`[migration] try migFile=${migFile}, migration=${migSql}`);
         try {
             const sqlName = path.basename(migFile);
 
@@ -49,7 +49,7 @@ export async function runInitMigration(dbFile: string, migDir: string) {
             logger.debug(`[migration] success migration=${migFile}`);
         } catch(err) {
             console.error(err);
-            logger.error(err, `[migration] fail migration=${migSql}, error=${(err as any).message}`);
+            logger.error(`[migration] fail migration=${migSql}, error=${(err as any).message}`);
         }
     }
 

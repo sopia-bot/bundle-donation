@@ -19,6 +19,7 @@ export class SqliteHelper extends SQLite3 {
             this.exec("COMMIT");
             return true;
         } catch (error) {
+            console.error(error);
             this.exec("ROLLBACK");
             return false;
         }
