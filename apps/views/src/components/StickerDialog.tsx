@@ -12,7 +12,7 @@ interface StickerState {
     setStickerList: (n: StickerCategory[]) => void;
 }
 
-const useStickerStore = create<StickerState>((set) => ({
+export const useStickerStore = create<StickerState>((set) => ({
     stickerList: [],
     allStickerList: [],
     isInit: false,
@@ -185,8 +185,13 @@ export function StickerDialog(props: StickerDialogProp) {
         } else {
             setLoading(false);
         }
+        console.log('props.open', props.open);
         setIsOpen(props.open);
     }, []);
+
+    useEffect(() => {
+        setIsOpen(props.open);
+    }, [props.open]);
 
     const handleChange = (event: React.SyntheticEvent, newValue: number) => {
         setTabIdx(newValue);
@@ -209,7 +214,7 @@ export function StickerDialog(props: StickerDialogProp) {
     }
 
     if ( loading ) {
-        return <div></div>;
+        return <div>로?딩</div>;
     }
 
     if ( error ) {
@@ -274,7 +279,7 @@ type StickerDialogBtnProps = {
     onChange: (v: Sticker) => void;
 };
 
-function findSticker(stickerList: StickerCategory[], stickerName: string): Sticker|null {
+export function findSticker(stickerList: StickerCategory[], stickerName: string): Sticker|null {
     for ( let i = 0;i < stickerList.length;i++ ) {
         const category = stickerList[i];
         let idx = category.stickers.findIndex((sticker) => stickerName === sticker.name);

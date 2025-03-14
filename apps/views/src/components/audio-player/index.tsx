@@ -1,11 +1,12 @@
 import Player from './player';
 import FilePicker from './file';
-import { decodeAudioBuffer } from './audio-helper';
+import { decodeAudioBuffer, sliceAudioBuffer } from './audio-helper';
 import './style.css';
 import { useClassicState } from './hooks';
 import { FileOpen, Pause, PlayArrow, Save, VolumeDown, VolumeMute, VolumeOff, VolumeUp } from '@mui/icons-material';
 import { useCallback, useEffect, useState } from 'react';
 import { Slider, Stack } from '@mui/material';
+import { trimAudio } from './trim-audio';
 
 export default function App({
   audioName,
@@ -43,8 +44,7 @@ export default function App({
   });
 
   useEffect(() => {
-    console.log('callback?', Date.now());
-    if ( selectedAudioBlob && audioName && state.file === null ) {
+    if ( selectedAudioBlob && audioName ) {
       handleFileChange(new File([selectedAudioBlob], audioName), true);
     }
   }, [selectedAudioBlob])
@@ -116,13 +116,27 @@ export default function App({
   };
 
   const handleFileSave = () => {
-    if ( !state.file ) {
-      return;
-    }
+    const {
+      startTime, endTime, audioBuffer, file, volume
+    } = state;
+    if (!audioBuffer || !file) return;
 
-    if ( typeof onChange === 'function' ) {
-      onChange(state.file, state.volume);
-    }
+    const { length, duration } = audioBuffer;
+
+    // setState({
+    //   processing: true,
+    // });
+    trimAudio(
+      audioBuffer,
+      Math.floor(length * startTime / duration),
+      Math.floor(length * endTime / duration),
+    ).then((audioSliced) => {
+      console.log('audioSliced', audioSliced, file);
+
+      if ( typeof onChange === 'function' ) {
+        onChange(new File([audioSliced], file.name), volume);
+      }
+    });
   }
 
   return (

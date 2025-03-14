@@ -2,12 +2,14 @@ import { useCallback, useEffect, useState } from 'react';
 import Container from '@mui/material/Container';
 import Box from '@mui/material/Box';
 import { useQuery } from '@tanstack/react-query';
-import { Button, IconButton, List, ListItem, ListItemText, Slider, Stack, Tooltip } from '@mui/material';
-import { KeyboardArrowDown, KeyboardArrowRight, QuestionMark, VolumeUp } from '@mui/icons-material';
+import { Button, IconButton, List, ListItem, ListItemText, Slider, Snackbar, Stack, Tooltip } from '@mui/material';
+import { Close, KeyboardArrowDown, KeyboardArrowRight, QuestionMark, VolumeUp } from '@mui/icons-material';
 import styled from '@emotion/styled';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import Player from '../components/audio-player/index';
 import axios from 'axios';
+import { Sticker } from '@sopia-bot/core';
+import { StickerDialog, useStickerStore, findSticker } from '../components/StickerDialog';
 
 const VisuallyHiddenInput = styled('input')({
   clip: 'rect(0 0 0 0)',
@@ -28,6 +30,20 @@ const ListItemButton = styled('div')({
   padding: '0.5rem 1rem',
   cursor: 'pointer',
   transition: 'background-color 0.2s',
+  ':hover': {
+    backgroundColor: '#f5f5f5',
+  },
+});
+
+const NewItemButton = styled(ListItem)({
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  padding: '1.3rem',
+  cursor: 'pointer',
+  transition: 'background-color 0.2s',
+  border: '1px solid #e0e0e0',
+  borderWidth: '0.5px',
   ':hover': {
     backgroundColor: '#f5f5f5',
   },
@@ -63,25 +79,42 @@ export default function App() {
   const [ isOpending, setOpending ] = useState(false);
   const [ defaultEffect, setDefaultEffect ] = useState<any>({});
   const [ effectList, setEffectList ] = useState<any[]>([]);
+  const [ stickerDialogOpen, setStickerDialogOpen ] = useState(false);
+  const [ selectedSticker, setSelectedSticker ] = useState<Sticker|null>(null);
+  const { stickerList, isInit } = useStickerStore((state) => state);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const snackbarClose = () => {
+    setSnackbarOpen(false);
+  };
 
   useEffect(() => {
-    if ( Array.isArray(data) ) {
+    if ( isInit && Array.isArray(data) ) {
       (async () => {
         const _effectList = [];
         for ( const effect of data ) {
           const dataurl = `data:${effect.mimeType};base64,${effect.base64}`;
           const blob = await base64ToBlob(dataurl);
           effect.blob = blob;
+          effect.isOpending = false;
           if ( effect.sticker === '_sopia_def_sticker' ) {
             setDefaultEffect(effect);
           } else {
+            if ( isInit ) {
+              const s = findSticker(stickerList, effect.sticker);
+              if ( s ) {
+                effect.stickerData = s;
+              }
+            }
             _effectList.push(effect);
           }
         }
         setEffectList(_effectList);
       })();
     }
-  }, [data]);
+  }, [data, isInit]);
+
+
 
   if ( isPending ) return 'Lodaing...';
 
@@ -105,6 +138,48 @@ export default function App() {
         volume: volume,
       }),
     }).then((res) => res.json())
+    .then(async (res) => {
+      if ( res.success ) {
+        if ( sticker === '_sopia_def_sticker' ) {
+          const effect = structuredClone(defaultEffect);
+          effect.blob = file as Blob;
+          setDefaultEffect(effect);
+          console.log('i want reload');
+        } else {
+          const newEffectList = structuredClone(effectList);
+          const newEffect = newEffectList.find((e) => e.sticker === sticker);
+          newEffect.blob = file as Blob;
+          setEffectList(newEffectList);
+        }
+      }
+    })
+  }
+
+  const onStickerSelect = (sticker: Sticker) => {
+    console.log("🚀 ~ onStickerSelect ~ sticker:", sticker)
+    const newEffectList = structuredClone(effectList);
+
+    if ( !!newEffectList.find((e) => e.sticker === sticker.name) ) {
+      setSnackbarMessage('이미 설정된 스티커입니다.');
+      setSnackbarOpen(true);
+      return;
+    }
+
+    newEffectList.push({
+      sticker: sticker.name,
+      stickerData: findSticker(stickerList, sticker.name),
+      volume: 50,
+      isOpending: false,
+    });
+    setEffectList(newEffectList);
+  };
+
+  const toggleEffect = (effect: typeof effectList[0]) => {
+    const newEffectList = structuredClone(effectList);
+    const newEffect = newEffectList.find((e) => e.sticker = effect.sticker);
+    console.log('new', newEffectList, 'e', effect);
+    newEffect.isOpending = !effect.isOpending;
+    setEffectList(newEffectList);
   }
 
   return (
@@ -126,6 +201,9 @@ export default function App() {
                       <QuestionMark/>
                     </IconButton> 
                   </Tooltip>
+                  <div style={{ marginLeft: 'auto' }}>
+                    {defaultEffect?.soundName}
+                  </div>
                 </ListItemButton>
                 {
                   isOpending &&
@@ -140,15 +218,67 @@ export default function App() {
                 }
               </div>
             </ListItem>
-            <ListItem>
-              asdf
-            </ListItem>
+            {
+              Array.isArray(effectList) && effectList.map((effect) => <ListItem key={`listitem:${effect.id}:${effect.sticker}`}>
+              <div style={{ width: '100%' }}>
+                <ListItemButton onClick={() => toggleEffect(effect)}>
+                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                    {
+                      effect.isOpending ? <KeyboardArrowDown /> : <KeyboardArrowRight />
+                    }
+                    <img src={effect.stickerData?.image_url_web} height={50}/>
+                    {effect.stickerData?.price} 스푼
+                  </div>
+                  <div style={{ marginLeft: 'auto' }}>
+                    {effect?.soundName}
+                  </div>
+                </ListItemButton>
+                {
+                  effect.isOpending &&
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <Player
+                      audioName={effect?.soundName}
+                      selectedAudioBlob={effect?.blob}
+                      onChange={(file, volume) => handleEffectChange(effect.sticker, file, volume)}
+                      volume={effect?.volume}
+                    />
+                  </div>
+                }
+              </div>
+            </ListItem>)
+            }
+            <NewItemButton onClick={() => setStickerDialogOpen(true)}>
+              + 새 효과음 추가하기
+            </NewItemButton>
             <ListItem>
               asdf
             </ListItem>
           </List>
         </Box>
       </Container>
+      <StickerDialog
+        open={stickerDialogOpen}
+        sticker={selectedSticker}
+        onChange={onStickerSelect}
+        onClose={() => setStickerDialogOpen(false)}
+      />
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={snackbarClose}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        message={snackbarMessage}
+        action={<>
+          <IconButton
+            size="small"
+            aria-label="close"
+            color="inherit"
+            onClick={snackbarClose}
+          >
+            <Close fontSize="small" />
+          </IconButton>
+        </>}
+      />
     </>
   );
 }
